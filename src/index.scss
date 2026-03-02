@@ -15,6 +15,7 @@ button {
   color: inherit;
   background: none;
   border: none;
+  cursor: pointer;
 }
 
 // =============================================================================
@@ -27,15 +28,13 @@ $color-muted: #a0a0b0;
 $color-call: #00C853;
 $color-call-active: #FF3B30;
 
-$font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-
 $btn-size: min(22vw, 88px);
 $gap: 12px;
 
 // =============================================================================
 // Mixins
 // =============================================================================
-@mixin round-btn($size) {
+@mixin round-btn($size: $btn-size) {
   width: $size;
   height: $size;
   min-width: 80px;
@@ -43,7 +42,6 @@ $gap: 12px;
   border: none;
   border-radius: 9999px;
   padding: 0;
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -55,46 +53,30 @@ $gap: 12px;
 body {
   background: $color-bg;
   color: $color-text;
-  font-family: $font-family;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 // =============================================================================
-// Layout
+// Block: phone
 // =============================================================================
-:root {
-  --btn-size: #{$btn-size};
-}
-
 .phone {
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
   background: $color-bg;
   padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  padding-top: max(env(safe-area-inset-top), 12px);
 }
 
-.status-bar {
-  width: 100%;
-  padding: 8px 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 0.9rem;
-  color: $color-muted;
-
-  .status-icons {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35em;
-  }
-}
-
+// =============================================================================
+// Block: display
+// =============================================================================
 .display {
   width: 100%;
   max-width: 320px;
-  min-height: 88px;
-  height: 88px;
+  min-height: 72px;
   margin: 0 20px;
   padding: 14px 20px;
   font-weight: 300;
@@ -105,62 +87,54 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: clamp(1rem, calc((100vw - 80px) / (var(--len, 1) * 0.55)), 2.5rem);
+  font-size: clamp(1rem, 10vw, 2.5rem);
   display: flex;
+  flex-direction: column;
+  gap: 2px;
   align-items: center;
   justify-content: center;
 
-  &.display--long {
-    font-size: 5vw;
+  &__label {
+    min-height: 20px;
+    font-size: 0.4em;
+    color: $color-muted;
+    line-height: 1.2;
+    flex-shrink: 0;
   }
 
-  &.display--calling {
-    flex-direction: column;
-    gap: 2px;
-    justify-content: center;
-    white-space: normal;
-
-    .display__calling-label {
-      font-size: 0.4em;
-      color: $color-muted;
-      line-height: 1.2;
-      flex-shrink: 0;
-    }
-
-    .display__number {
-      color: $color-text;
-      font-size: 0.85em;
-      line-height: 1.25;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      flex-shrink: 1;
-    }
-  }
-
-  &:empty::before {
-    content: ' ';
+  &__number {
+    min-height: 50px;
+    color: $color-text;
+    font-size: 1em;
+    line-height: 1.25;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex-shrink: 1;
   }
 }
 
+// =============================================================================
+// Block: keypad
+// =============================================================================
 .keypad {
-  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: $gap;
-  padding: $gap 0 20px;
+  padding: 8px 0 20px;
+  margin-top: -4px;
 
-  .keypad-row {
+  &__row {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: $gap;
   }
 
-  .key {
-    @include round-btn($btn-size);
+  &__key {
+    @include round-btn;
     flex-direction: column;
     background: $color-key;
     color: $color-text;
@@ -171,16 +145,16 @@ body {
       transform: scale(1.18);
     }
 
-    .key-main {
+    &--symbol &-main {
+      font-size: 1.35em;
+    }
+
+    &-main {
       line-height: 1.2;
       display: block;
     }
 
-    &.key--symbol .key-main {
-      font-size: 1.35em;
-    }
-
-    .key-sub {
+    &-sub {
       display: block;
       min-height: 1em;
       font-size: 0.36em;
@@ -189,67 +163,62 @@ body {
     }
   }
 
-  .call-row {
+  &__call-row {
     margin-top: $gap;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: $gap;
+  }
 
-    &__spacer {
-      width: var(--btn-size);
-      height: var(--btn-size);
-      flex-shrink: 0;
+  &__call-spacer {
+    width: $btn-size;
+    height: $btn-size;
+    flex-shrink: 0;
+  }
+
+  &__call-btn {
+    @include round-btn;
+    background: $color-call;
+    color: #fff;
+    font-size: 2.2rem;
+    transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    &:active:not(:disabled) {
+      transform: scale(1.18);
+    }
+
+    &--active {
+      background: $color-call-active;
+
+      .keypad__call-btn-icon {
+        transform: rotate(135deg);
+      }
+
+      &:active {
+        transform: scale(1.18);
+      }
+    }
+
+    &-icon {
       display: block;
     }
+  }
 
-    .call-btn {
-      @include round-btn($btn-size);
-      background: $color-call;
-      color: #fff;
-      font-size: 2.2rem;
-      transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  &__delete-btn {
+    @include round-btn;
+    background: transparent;
+    color: $color-muted;
+    font-size: 1.5rem;
+    transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
 
-      &:active:not(:disabled) {
-        transform: scale(1.18);
-      }
-
-      &--active {
-        background: $color-call-active;
-
-        .call-btn__icon {
-          transform: rotate(135deg);
-        }
-
-        &:active {
-          transform: scale(1.18);
-        }
-      }
+    &:hover,
+    &:active {
+      color: $color-text;
     }
 
-    .delete-btn {
-      width: var(--btn-size);
-      height: var(--btn-size);
-      padding: 0;
-      background: transparent;
-      border: none;
-      color: $color-muted;
-      font-size: 1.5rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      -webkit-tap-highlight-color: transparent;
-      transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
-
-      &:hover,
-      &:active {
-        color: $color-text;
-      }
-
-      &:active {
-        transform: scale(1.18);
-      }
+    &:active {
+      transform: scale(1.18);
     }
   }
 }

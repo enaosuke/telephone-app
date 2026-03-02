@@ -45,8 +45,9 @@ export default function App() {
   }, [callActive])
 
   const endCall = useCallback(() => {
-    const { first, hangup } = callAudioRef.current
+    const { first, second, hangup } = callAudioRef.current
     if (first) first.pause()
+    if (second) second.pause()
     if (hangup) hangup.pause()
     const h = new Audio(HANGUP_URL)
     h.play().catch(() => {})
@@ -105,62 +106,45 @@ export default function App() {
 
   return (
     <div className="phone">
-      <div className="status-bar">
-        <span className="time">{`${new Date().getHours()}:${new Date().getMinutes()}`}</span>
-        <span className="status-icons">
-          <i className="fa-solid fa-signal" aria-hidden />
-          <i className="fa-solid fa-battery-full" aria-hidden />
-        </span>
-      </div>
-
-      <div
-        className={`display${(callActive ? dialedNumber : display).length >= 20 ? ' display--long' : ''}${callActive ? ' display--calling' : ''}`}
-        style={{ '--len': Math.max((callActive ? dialedNumber : display).length || 0, 1) }}
-      >
-        {callActive ? (
-          <>
-            <span className="display__calling-label">発信中…</span>
-            <span className="display__number">{formatDisplay(dialedNumber)}</span>
-          </>
-        ) : (
-          formatDisplay(display || ' ')
-        )}
+      <div className="display">
+        <span className="display__label">{callActive ? '発信中…' : ''}</span>
+        <span className="display__number">{formatDisplay(callActive ? dialedNumber : display || ' ')}</span>
       </div>
 
       <div className="keypad">
         {KEYS.map((row) => (
-          <div key={row.join('')} className="keypad-row">
+          <div key={row.join('')} className="keypad__row">
             {row.map((key) => (
               <button
                 key={key}
                 type="button"
-                className={`key${key === '*' || key === '#' ? ' key--symbol' : ''}`}
+                className={`keypad__key${key === '*' || key === '#' ? ' keypad__key--symbol' : ''}`}
                 onClick={() => onKey(key)}
                 aria-label={LABELS[key] + (LETTERS[key] ? ` ${LETTERS[key]}` : '')}
               >
-                <span className="key-main">{LABELS[key]}</span>
-                <span className="key-sub">{LETTERS[key] || '\u00A0'}</span>
+                <span className="keypad__key-main">{LABELS[key]}</span>
+                <span className="keypad__key-sub">{LETTERS[key] || '\u00A0'}</span>
               </button>
             ))}
           </div>
         ))}
-        <div className="call-row">
-          <span className="call-row__spacer" aria-hidden />
+        <div className="keypad__call-row">
+          <span className="keypad__call-spacer" aria-hidden />
           <button
             type="button"
-            className={`call-btn${callActive ? ' call-btn--active' : ''}`}
+            className={`keypad__call-btn${callActive ? ' keypad__call-btn--active' : ''}`}
             onClick={callActive ? endCall : onCall}
             disabled={!callActive && !display}
             aria-label={callActive ? '通話を終了' : '電話をかける'}
           >
-            <i className="fa-solid fa-phone call-btn__icon" aria-hidden />
+            <i className="fa-solid fa-phone keypad__call-btn-icon" aria-hidden />
           </button>
           {display && !callActive ? (
-            <button type="button" className="delete-btn" onClick={onDelete} aria-label="1つ消す">
+            <button type="button" className="keypad__delete-btn" onClick={onDelete} aria-label="1つ消す">
               <i className="fa-solid fa-delete-left" aria-hidden />
             </button>
           ) : (
-            <span className="call-row__spacer" aria-hidden />
+            <span className="keypad__call-spacer" aria-hidden />
           )}
         </div>
       </div>
